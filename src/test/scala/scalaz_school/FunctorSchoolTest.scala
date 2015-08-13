@@ -118,7 +118,7 @@ class FunctorSchoolTest extends FlatSpec{
   it should " let us replace a value with operation as" in {
     // Here is a demo for "as"
     // The use of this operator generates value with more complex structures
-    // so the value gets replaces preserving the original structure of the functor.
+    // so the value gets replaced preserving the original structure of the functor.
 
     case class MyCaseClass[A, B](a:A, b:B)
     case class MyContainer[A](a:A)
@@ -137,10 +137,7 @@ class FunctorSchoolTest extends FlatSpec{
   }
 
   it should " work well with fpoint" in {
-    // Here is a demo for "as"
-    // The use of this operator generates value with more complex structures
-    // so the value gets replaces preserving the original structure of the functor.
-
+    
     case class MyCaseClass[A, B](a:A, b:B)
     case class MyContainer[A](a:A)
 
