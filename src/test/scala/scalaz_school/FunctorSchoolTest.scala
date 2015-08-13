@@ -52,7 +52,7 @@ class FunctorSchoolTest extends FlatSpec{
     val F = Functor[MyContainer]
 
     def f(x:MyCaseClass[String, Int]): Int = {
-      0
+      x.b * 2
     }
 
     def g(x:MyCaseClass[String, Int]): String = {
@@ -62,7 +62,28 @@ class FunctorSchoolTest extends FlatSpec{
     val res1 = F.map(localContainer)(f)
     val res2 = F.map(localContainer)(g)
 
-    assert(res1.a == 0)
+    assert(res1.a == 2)
+    assert(res2.a == "HOLA")
+  }
+
+  it should " let us map our own types (Own) with a custom anonymous map function" in {
+
+    case class MyCaseClass[A, B](a:A, b:B)
+    case class MyContainer[A](a:A)
+
+    val localCaseClass = MyCaseClass[String, Int]("Uno", 1)
+    val localContainer = MyContainer[MyCaseClass[String, Int]]( a = localCaseClass )
+
+    implicit val myCaseClassFunctor = new Functor[MyContainer]{
+      def map[A,B](fa: MyContainer[A])(f:A=>B) = MyContainer(f(fa.a))
+    }
+
+    val F = Functor[MyContainer]
+
+    val res1 = F.map(localContainer){caseclass=>caseclass.b * 2}
+    val res2 = F.map(localContainer)(caseclass=>"HOLA")
+
+    assert(res1.a == 2)
     assert(res2.a == "HOLA")
   }
 
