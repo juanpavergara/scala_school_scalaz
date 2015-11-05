@@ -55,4 +55,21 @@ class DisjunctionSchoolTest extends FlatSpec{
 
   }
 
+
+  it should "be different to Validation from scalaz" in {
+
+
+    case class A(a:String, b:String)
+
+    val a = "event 1 ok".success[String]
+    val b = "event 1 failed!".failure[String]
+
+    val c = (a |@| b) {A(_,_)}
+
+    println(c)
+
+
+
+  }
+
 }

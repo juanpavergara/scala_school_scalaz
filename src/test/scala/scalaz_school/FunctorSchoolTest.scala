@@ -137,7 +137,7 @@ class FunctorSchoolTest extends FlatSpec{
   }
 
   it should " work well with fpoint" in {
-    
+
     case class MyCaseClass[A, B](a:A, b:B)
     case class MyContainer[A](a:A)
 
