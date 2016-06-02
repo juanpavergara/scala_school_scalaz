@@ -4,7 +4,13 @@ import org.scalatest.FunSuite
 import scalaz._
 import Scalaz._
 
-
+/*
+Esta suite esta basada en la explicacion de Monad Transformes de
+Eugene Yokota que se encuentra en
+http://eed3si9n.com/learning-scalaz/Monad+transformers.html
+Se adicionan alguno test adicionales para completar el ciclo de entendimiento
+y entrenamiento en Reader y ReaderT
+ */
 class ReaderSchoolTest extends FunSuite{
 
   test("Smoke test"){
@@ -153,7 +159,7 @@ class ReaderSchoolTest extends FunSuite{
     def result = localExample("JP")
 
     println(result)
-    
+
     assert(result._1.isDefined)
     assert(!result._2.isDefined)
     assert(result._3.isDefined)
