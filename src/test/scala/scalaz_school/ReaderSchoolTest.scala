@@ -139,6 +139,11 @@ class ReaderSchoolTest extends FunSuite{
       case x:String => None
     }
 
+    /*
+     * Este for comp evalúa todas las expresiones, sin importar que myNameNone
+     * evalúe a None. Esto se debe al contexto Reader en el que se encuentra envuelta
+     * la función.
+     */
     def localExample = for {
       a <- myNameSome
       b <- myNameNone
@@ -148,7 +153,10 @@ class ReaderSchoolTest extends FunSuite{
     def result = localExample("JP")
 
     println(result)
-    assert(true)
+    
+    assert(result._1.isDefined)
+    assert(!result._2.isDefined)
+    assert(result._3.isDefined)
   }
 
   test("Option with for comp"){
