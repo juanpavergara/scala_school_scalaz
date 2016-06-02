@@ -2,6 +2,7 @@ package scalaz_school
 
 import org.scalatest.FunSuite
 import scalaz._
+import Scalaz._
 
 
 class ReaderSchoolTest extends FunSuite{
@@ -69,7 +70,7 @@ class ReaderSchoolTest extends FunSuite{
       _.get(key)
     }
 
-    def setupConnection: ReaderT[Option, Map[String, String], (String, String, String)] = for {
+    def setupConnection = for {
       host <- configure("host")
       user <- configure("user")
       password <- configure("password")
