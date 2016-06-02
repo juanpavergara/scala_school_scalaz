@@ -40,13 +40,24 @@ class ReaderSchoolTest extends FunSuite{
 
   test("Nesting Readers of the same type"){
 
+    //     Este ejemplo puede ser confuso porque el placeholder _
+    //     hace las veces de aquello que será inyectado como ambiente
+    //     mediante el Reader Monad :) ... En realidad no hace las veces
+    //     de configuracion pero si se estudia se entiende el sentido
     def myName(step: String): Reader[String, String] = Reader {
       step + ", I am " + _
     }
 
+    //    Esta escritura de la funcion myName puede hacer más explicito
+    //    la existencia de la configuracion como aquello que está pendiente
+    //    por ser inyectado como ambiente mediante la Reader Monad
+    def myName2(step: String): Reader[String, String] = Reader {
+      case conf:String => step + ", I am " + conf
+    }
+
     def localExample: Reader[String, (String, String, String)] = for {
       a <- myName("First")
-      b <- myName("Second") >=> Reader { _ + "dy"}
+      b <- myName2("Second") >=> Reader { _ + "dy"}
       c <- myName("Third")
     } yield (a, b, c)
 
@@ -58,7 +69,7 @@ class ReaderSchoolTest extends FunSuite{
 
   }
 
-  test("Stacking some monads on Reader"){
+  test("Stacking some monads on Reader (Good config)"){
 
     type ReaderTOption[A, B] = ReaderT[Option, A, B]
 
@@ -67,7 +78,7 @@ class ReaderSchoolTest extends FunSuite{
     }
 
     def configure(key: String) = ReaderTOption[Map[String, String], String] {
-      _.get(key)
+      case m => m.get(key)
     }
 
     def setupConnection = for {
@@ -82,16 +93,93 @@ class ReaderSchoolTest extends FunSuite{
       "password" -> "****"
     )
 
-    val result = setupConnection(goodConfig)
+    val result: Option[(String, String, String)] = setupConnection(goodConfig)
+
+    result.foreach(
+      x => assert(x._1=="eed3si9n.com")
+    )
+  }
+
+  test("Stacking some monads on Reader (Bad config)"){
+
+    type ReaderTOption[A, B] = ReaderT[Option, A, B]
+
+    object ReaderTOption extends KleisliInstances with KleisliFunctions {
+      def apply[A, B](f: A => Option[B]): ReaderTOption[A, B] = kleisli(f)
+    }
+
+    def configure(key: String) = ReaderTOption[Map[String, String], String] {
+      case m => m.get(key)
+    }
+
+    def setupConnection = for {
+      host <- configure("host")
+      user <- configure("user")
+      password <- configure("password")
+    } yield (host, user, password)
+
+    val badConfiguration = Map(
+      "host" -> "eed3si9n.com",
+      "user" -> "sa"
+    )
+
+    val result: Option[(String, String, String)] = setupConnection(badConfiguration)
+
+    assert(!result.isDefined)
+  }
+
+  test("Try to stack without ReaderT"){
+
+
+    def myNameSome: Reader[Any, Option[String]] = Reader {
+      case x:String => Some(x)
+    }
+
+    def myNameNone: Reader[Any, Option[String]] = Reader {
+      case x:String => None
+    }
+
+    def localExample = for {
+      a <- myNameSome
+      b <- myNameNone
+      c <- myNameSome
+    } yield (a, b, c)
+
+    def result = localExample("JP")
 
     println(result)
+    assert(true)
+  }
 
-//    result.foreach(x => {
-//      assert(x._1 == "eed3si9n.com")
-//      assert(x._2 == "sa")
-//      assert(x._3 == "****")
-//    })
+  test("Option with for comp"){
 
+
+    def myNameSome = {
+      Some(1)
+    }
+
+    def myNameNone = {
+      None
+    }
+
+    /*
+    Este for comp evalua a un None porque myNameNone evalua a None
+    y así debe funcionar Option.
+    Es diferente a como funciona el test "Try to stack without ReaderT"
+    en el que el computo no se detiene cuando la función que envuelve el Reader
+    retorna None. Si se quieren las funcionalidades de las dos Monadas
+    entonces se deben apilar con ReaderT :)
+     */
+    def localExample = for {
+      a <- myNameSome
+      b <- myNameNone
+      c <- myNameSome
+    } yield (a, b, c)
+
+    def result = localExample
+
+    println(result)
+    assert(!result.isDefined)
   }
 
 }
