@@ -196,4 +196,51 @@ class ReaderSchoolTest extends FunSuite{
     assert(!result.isDefined)
   }
 
+  test("When stacking monads is not necessary :)"){
+
+    type ReaderTOption[A, B] = ReaderT[Option, A, B]
+
+    object ReaderTOption extends KleisliInstances with KleisliFunctions {
+      def apply[A, B](f: A => Option[B]): ReaderTOption[A, B] = kleisli(f)
+    }
+
+    def configure1(key: String) = ReaderTOption[Map[String, String], String] {
+      case m => m.get(key)
+    }
+
+    def configure2(key:String) = Reader[Map[String, String], Option[String]] {
+      case m => m.get(key)
+    }
+
+
+    val goodConfig = Map(
+      "host" -> "eed3si9n.com",
+      "user" -> "sa",
+      "password" -> "****"
+    )
+
+    /*
+    Si vas a usar ReaderT es para apilar monadas
+    lo que quiere decir que vas a necesitar componer computos
+    con la monada que apilas con Reader.
+    En este caso no estas componiendo el Option apilado con Reader
+    asi que de nada te sirvio hacer un ReaderT
+    */
+    val result1 = configure1("host")(goodConfig)
+
+    /*
+    Fijate como este result2 es igual a result1 y no hubo necesidad de apilar
+    monadas.
+     */
+    val result2 = configure2("host")(goodConfig)
+
+    assert(result1.isDefined)
+    assert(result1.getOrElse("X") == "eed3si9n.com")
+    /*
+    Esta es la prueba reina de que si no se necesita apilar no hay que hacer ReaderT
+    Asi Reader sea un ReaderT con la monada identidad.
+     */
+    assert(result1.getOrElse("X") == result2.getOrElse("X"))
+  }
+
 }
