@@ -200,6 +200,11 @@ class ReaderSchoolTest extends FunSuite{
 
     type ReaderTOption[A, B] = ReaderT[Option, A, B]
 
+    /*
+    Esta es la parte fastidiosa (la del Kleisli) que tiene que entender un colega
+    si va a usar ReaderT y al final del día no va a usar la monada apilada
+    (en este caso Option) para encadenar computos :/
+     */
     object ReaderTOption extends KleisliInstances with KleisliFunctions {
       def apply[A, B](f: A => Option[B]): ReaderTOption[A, B] = kleisli(f)
     }
