@@ -187,7 +187,7 @@ class ReaderSchoolTest extends FunSuite{
   }
 
   test("When stacking monads is not necessary :)"){
-    
+
     def configure1(key: String) = ReaderT[Option, Map[String, String], String] {
       case m => m.get(key)
     }

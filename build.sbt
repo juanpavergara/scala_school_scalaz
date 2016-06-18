@@ -6,6 +6,18 @@ version := "1.0"
 
 scalaVersion := "2.11.0"
 
+scalacOptions ++= Seq(
+ "-deprecation"
+ ,"-encoding", "UTF-8"
+// ,"-unchecked"
+ ,"-feature"
+ ,"-language:implicitConversions"
+ ,"-language:postfixOps"
+ ,"-Ywarn-dead-code"
+ ,"-Xlint"
+// ,"-Xfatal-warnings"
+)
+
 libraryDependencies ++= Seq(  
  "org.scalaz" %% "scalaz-core" % "7.2.0" withSources() withJavadoc(),
   "org.scalatest" %% "scalatest" % "2.2.1" % "test",
