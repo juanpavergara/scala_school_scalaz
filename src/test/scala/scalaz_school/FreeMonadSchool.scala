@@ -37,10 +37,18 @@ class FreeMonadSchool extends FunSuite{
       def apply[A](in: Request[A]): Id[A] = in match {
         case Request(service) =>
           service match {
+              /*
+              El compilador no pone problema por el retorno de este List.
+              Hace la conversión implícita de List[Tweet] a Id[List[Tweet]]
+               */
             case GetTweets(userId) =>
               println(s"Getting tweets for user $userId")
                 List(Tweet(1, "Hi"), Tweet(2, "Hi"), Tweet(1, "Bye"))
 
+            /*
+            Para los siguientes case el compilador me dice que espera que la evaluación
+            se de a Id[A] (que expande a A) y yo le estoy entregando una evaluacion a String :(
+             */
             case GetUserName(userId) =>
               println(s"Getting user name for user $userId")
               userId match {
