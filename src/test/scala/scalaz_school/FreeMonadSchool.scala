@@ -1,7 +1,5 @@
 package scalaz_school
 
-import java.io.Serializable
-
 import org.scalatest.FunSuite
 import scalaz._
 import Scalaz._
