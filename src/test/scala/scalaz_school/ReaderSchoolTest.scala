@@ -77,13 +77,8 @@ class ReaderSchoolTest extends FunSuite{
 
   test("Stacking some monads on Reader (Good config)"){
 
-    type ReaderTOption[A, B] = ReaderT[Option, A, B]
 
-    object ReaderTOption extends KleisliInstances with KleisliFunctions {
-      def apply[A, B](f: A => Option[B]): ReaderTOption[A, B] = kleisli(f)
-    }
-
-    def configure(key: String) = ReaderTOption[Map[String, String], String] {
+    def configure(key: String) = ReaderT[Option, Map[String, String], String] {
       case m => m.get(key)
     }
 
@@ -108,13 +103,8 @@ class ReaderSchoolTest extends FunSuite{
 
   test("Stacking some monads on Reader (Bad config)"){
 
-    type ReaderTOption[A, B] = ReaderT[Option, A, B]
-
-    object ReaderTOption extends KleisliInstances with KleisliFunctions {
-      def apply[A, B](f: A => Option[B]): ReaderTOption[A, B] = kleisli(f)
-    }
-
-    def configure(key: String) = ReaderTOption[Map[String, String], String] {
+    def configure(key: String) = ReaderT[Option, Map[String, String], String] {
+    //def configure(key: String) = ReaderTOption[Map[String, String], String] {
       case m => m.get(key)
     }
 
@@ -197,19 +187,8 @@ class ReaderSchoolTest extends FunSuite{
   }
 
   test("When stacking monads is not necessary :)"){
-
-    type ReaderTOption[A, B] = ReaderT[Option, A, B]
-
-    /*
-    Esta es la parte fastidiosa (la del Kleisli) que tiene que entender un colega
-    si va a usar ReaderT y al final del día no va a usar la monada apilada
-    (en este caso Option) para encadenar computos :/
-     */
-    object ReaderTOption extends KleisliInstances with KleisliFunctions {
-      def apply[A, B](f: A => Option[B]): ReaderTOption[A, B] = kleisli(f)
-    }
-
-    def configure1(key: String) = ReaderTOption[Map[String, String], String] {
+    
+    def configure1(key: String) = ReaderT[Option, Map[String, String], String] {
       case m => m.get(key)
     }
 
