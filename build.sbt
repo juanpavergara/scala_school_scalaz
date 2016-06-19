@@ -4,19 +4,7 @@ name := "scala_school_scalaz"
 
 version := "1.0"
 
-scalaVersion := "2.11.0"
-
-scalacOptions ++= Seq(
- "-deprecation"
- ,"-encoding", "UTF-8"
-// ,"-unchecked"
- ,"-feature"
- ,"-language:implicitConversions"
- ,"-language:postfixOps"
- ,"-Ywarn-dead-code"
- ,"-Xlint"
-// ,"-Xfatal-warnings"
-)
+scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(  
  "org.scalaz" %% "scalaz-core" % "7.2.0" withSources() withJavadoc(),

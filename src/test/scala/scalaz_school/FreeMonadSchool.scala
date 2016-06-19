@@ -16,6 +16,8 @@ class FreeMonadSchool extends FunSuite{
     type UserName = String
     type UserPhoto = String
 
+    type Tweets = List[String]
+
     final case class Tweet(userId: UserId, msg: String)
     final case class User(id: UserId, name: UserName, photo: UserPhoto)
 
@@ -28,7 +30,10 @@ class FreeMonadSchool extends FunSuite{
     // A request represents a request for data
     final case class Request[A](service: Service[A])
 
-    def fetch[A](service: Service[A]): Free[Request, A] = Free.liftF(Request(service))
+    case class Response[A](res: A)
+
+    def fetch[A](service: Service[A]): Free[Request, A] =
+      Free.liftF[Request, A](Request(service) : Request[A])
 
     object IdInterpreter extends (Request ~> Id.Id) {
 
@@ -37,18 +42,11 @@ class FreeMonadSchool extends FunSuite{
       def apply[A](in: Request[A]): Id[A] = in match {
         case Request(service) =>
           service match {
-              /*
-              El compilador no pone problema por el retorno de este List.
-              Hace la conversión implícita de List[Tweet] a Id[List[Tweet]]
-               */
+
             case GetTweets(userId) =>
               println(s"Getting tweets for user $userId")
-                List(Tweet(1, "Hi"), Tweet(2, "Hi"), Tweet(1, "Bye"))
+              List(Tweet(1, "Hi"), Tweet(2, "Hi"), Tweet(1, "Bye"))
 
-            /*
-            Para los siguientes case el compilador me dice que espera que la evaluación
-            se de a Id[A] (que expande a A) y yo le estoy entregando una evaluacion a String :(
-             */
             case GetUserName(userId) =>
               println(s"Getting user name for user $userId")
               userId match {
@@ -64,6 +62,7 @@ class FreeMonadSchool extends FunSuite{
                 case 2 => ":-D"
                 case _ => ":-|"
               }
+
           }
       }
     }
