@@ -15,7 +15,7 @@ object FreeMonadProgram {
 
   /*
   Lo importante es comprender que fetch "monta" una mónada libre
-  por cada evaluación. Dado que arroja monadas, son sujetas de ser compuetas
+  por cada evaluación. Dado que arroja monadas, son sujetas de ser encadenadas
   con flatmap o for-comp como cualquier monada.
   ¿Como se maneja concretamente el efecto? ¿De cual efecto se encarga una monada libre?
   La respuesta es: aquella a la que evalua la transformacion natural implementada en el interprete.
