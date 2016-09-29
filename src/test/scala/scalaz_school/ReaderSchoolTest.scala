@@ -33,8 +33,8 @@ class ReaderSchoolTest extends FunSuite{
     val r1: Reader[String, String] = myName("Hello")
 
     // Aqui tienes dos formas de ejecutar un reader que ya esta montado
-    val r2 = r1("JP!")
-    val r3 = r1.run("JP!")
+    val r2: Id.Id[String] = r1("JP!")
+    val r3: Id.Id[String] = r1.run("JP!")
 
     // Fijate como son iguales con las dos maneras de ejecutar
     assert(r2 == r3)
