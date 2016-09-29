@@ -72,7 +72,7 @@ class ApplicativeSchoolTest extends FunSuite{
 
     case class MyGADT[A](a:A)
 
-    implicit val myCaseClassApplicative = new Applicative[MyGADT]{
+    implicit val myGADTApplicative = new Applicative[MyGADT]{
       def point[A](a: => A): MyGADT[A] = MyGADT(a)
       def ap[A,B](fa: => MyGADT[A])(f: => MyGADT[A => B]): MyGADT[B] = MyGADT(f.a(fa.a))
     }
