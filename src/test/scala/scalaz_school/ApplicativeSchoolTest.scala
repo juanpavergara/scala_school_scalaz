@@ -55,7 +55,7 @@ class ApplicativeSchoolTest extends FunSuite{
 //    Esta aplicacion funciona igual que un Functor que no sea aplicativo
 //    lo cual demuestra que todos los Applicative Functor son Functor y que para funciones de aridad 1
 //    hacer ap es lo mismo que usar famp de Functor no applicativo
-    val res1: MyContainer[Int] = Appl.ap(Appl.ap(a)(fa))(fa)
+    val res1: MyContainer[Int] = Appl.ap(a)(fa)
     val res2: MyContainer[Int] =  a <*> d
 
 //    Inicialmente verifiquemos que las sintaxis son equivalentes
