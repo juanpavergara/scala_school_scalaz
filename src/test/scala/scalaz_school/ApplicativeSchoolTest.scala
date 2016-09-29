@@ -94,7 +94,7 @@ class ApplicativeSchoolTest extends FunSuite{
 //    Note también que el orden de la aplicacion es importante pues primero se aplica a b pues es quien contiene un String
 //    y luego se aplica a a para aplicar el segundo parametro que es un Int
 //    Finalmente note como la anotación de tipo le indica que el resultado de la aplicacion siempre va a resultar en un MyGADT
-//    lo cual le permite comenzar a comprender que siempre estamos hablando de endofunctores (transformaciones de una categoria a la misma
+//    lo cual le permite comenzar a comprender que siempre estamos hablando de endofunctores (transformaciones de una categoria a la misma)
 //    es decir de MyGADT a MyGADT.
     val res1: MyGADT[String] = Appl.ap(a)(Appl.ap(b)(f1))
     val res2: MyGADT[String] =  a <*> (b <*> f1)
