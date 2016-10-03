@@ -2,6 +2,7 @@ package scalaz_school
 
 import org.scalatest.FunSuite
 import scalaz._, Scalaz._
+import scalaz.syntax.ApplicativeBuilder
 
 class ApplicativeSchoolTest extends FunSuite{
 
@@ -101,6 +102,90 @@ class ApplicativeSchoolTest extends FunSuite{
 
     assert(res1 == res2)
     res1.map(x=>res2.map(y=>assert(x==y)))
+
+  }
+
+  test("Un Applicative Functor se debe poder construir con scream |@|"){
+
+    case class MyGADT[A](a:A)
+
+    implicit val myGADTApplicative = new Applicative[MyGADT]{
+      def point[A](a: => A): MyGADT[A] = MyGADT(a)
+      def ap[A,B](fa: => MyGADT[A])(f: => MyGADT[A => B]): MyGADT[B] = MyGADT(f.a(fa.a))
+    }
+
+    val Appl = Applicative[MyGADT]
+
+    val f = (one:String) => ((two:Int) => one + two)
+
+    val a = MyGADT(1)
+    val b = MyGADT("A")
+    val f1 = MyGADT(f)
+    val f2 = Appl.point(f)
+
+    case class MyBusinessCaseClass(i:Int, s:String)
+    //TODO: explicar la utilidad de |@| comparandola con flatmap
+    val res: MyGADT[MyBusinessCaseClass] = (a |@| b) (MyBusinessCaseClass.apply)
+
+    res.map(g => assert(g.i == 1))
+
+  }
+
+
+  test("Applicative functor con un GADT mas cercano a la vida real"){
+
+    sealed trait Persona{
+      def nombre: String
+    }
+    case class PersonaRiesgosa(nombre:String, tipoRiesgo:String) extends Persona
+    case class PersonaNoRiesgosa(nombre:String) extends Persona
+
+
+    //TODO: Explicar por qué no puede haber bounds sobre A
+    //Explicación en http://stackoverflow.com/questions/27800502/error-higher-kinded-types-scala-type-arguments-do-not-conform-type-ts-bounds
+    case class PersonaRiesgos[A](val p: A)
+
+    implicit val myGADTApplicative = new Applicative[PersonaRiesgos]{
+      def point[A](a: => A): PersonaRiesgos[A] = PersonaRiesgos(a)
+
+      //TODO: Examinar como puede establecerse condiciones de negocio a la aplicacion de la A => B
+      def ap[A,B](fa: => PersonaRiesgos[A])(f: => PersonaRiesgos[A => B]): PersonaRiesgos[B] = {
+        PersonaRiesgos(f.p(fa.p))
+      }
+    }
+
+    val Appl = Applicative[PersonaRiesgos]
+
+    val pnr = PersonaNoRiesgosa("Juan Pablo")
+
+    val liftedPNR = Appl.point(pnr)
+
+    def calificarPersonaComoRiesgosa(pnr: PersonaNoRiesgosa): Persona = {
+      PersonaRiesgosa(pnr.nombre, "LISTA CLINTON")
+    }
+
+    //TODO: Explicar como se evalua parcialmente calificarPersonaComoRiesgosa con _
+    val f = calificarPersonaComoRiesgosa _
+
+    val liftedFunction = Appl.point(f)
+
+    //TODO: Aclarar en comentario que aqui estamos aplicando una funcion de aridad 1 como en un Functor normal
+    val res = liftedPNR <*> liftedFunction
+
+    res.map(x => {
+      x match {
+        case PersonaRiesgosa(n,r) => {
+          println(x)
+          assert(true)
+        }
+        case PersonaNoRiesgosa(n) => {
+          println(x)
+          assert(false)
+        }
+      }
+    })
+
+    assert(true)
 
   }
 
