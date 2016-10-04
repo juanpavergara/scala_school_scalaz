@@ -146,6 +146,10 @@ class ApplicativeSchoolTest extends FunSuite{
     case class PersonaRiesgos[A](val p: A)
 
     implicit val myGADTApplicative = new Applicative[PersonaRiesgos]{
+
+      //TODO: Dado que no se pueden establecer bounds sobre la parametrizacion del GADT examinar
+      //si tiene sentido hacer una smart construction del Applicative en point.
+
       def point[A](a: => A): PersonaRiesgos[A] = PersonaRiesgos(a)
 
       //TODO: Examinar como puede establecerse condiciones de negocio a la aplicacion de la A => B
