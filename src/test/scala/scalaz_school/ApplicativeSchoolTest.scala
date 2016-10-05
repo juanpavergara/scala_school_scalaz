@@ -132,7 +132,7 @@ class ApplicativeSchoolTest extends FunSuite{
   }
 
 
-  test("Applicative functor con un GADT mas cercano a la vida real"){
+  test("Try to understand if my GADT can be modeled as an Applicative Functor"){
 
     sealed trait Person{
       def name: String
@@ -143,8 +143,7 @@ class ApplicativeSchoolTest extends FunSuite{
 
     //TODO: Explicar por qué no puede haber bounds sobre A
     //Explicación en http://stackoverflow.com/questions/27800502/error-higher-kinded-types-scala-type-arguments-do-not-conform-type-ts-bounds
-    //TODO: validar la opcion del niño que dice que puede haber un type constructor superior
-    // parametrizado con tipo lower bound Applicative[PersonaRiesgos]
+
     case class RiskPerson[A](val p: A)
 
     implicit val RiskPersonApplicative = new Applicative[RiskPerson]{
@@ -160,13 +159,8 @@ class ApplicativeSchoolTest extends FunSuite{
       }
     }
 
-    //case class SuperTipo[A<:Persona](a:Applicative[PersonaRiesgos[A]])()
-
     val Appl = Applicative[RiskPerson]
-
     val pnr = NotRiskyPerson("Juan Pablo")
-
-    val liftedPNR = Appl.point(pnr)
 
     def makeAPersonRisky(pnr: NotRiskyPerson): Person = {
       RiskyPerson(pnr.name, "LISTA CLINTON")
@@ -175,10 +169,11 @@ class ApplicativeSchoolTest extends FunSuite{
     //TODO: Explicar como se evalua parcialmente calificarPersonaComoRiesgosa con _
     val f = makeAPersonRisky _
 
-    val liftedFunction = Appl.point(f)
+    val pointedPerson = Appl.point(pnr)
+    val pointedFunction = Appl.point(f)
 
     //TODO: Aclarar en comentario que aqui estamos aplicando una funcion de aridad 1 como en un Functor normal
-    val res = liftedPNR <*> liftedFunction
+    val res = pointedPerson <*> pointedFunction
 
     res.map(x => {
       x match {
@@ -192,9 +187,7 @@ class ApplicativeSchoolTest extends FunSuite{
         }
       }
     })
-
-    assert(true)
-
+    
   }
 
 }
