@@ -168,12 +168,12 @@ class ApplicativeSchoolTest extends FunSuite{
 
     val liftedPNR = Appl.point(pnr)
 
-    def calificarPersonaComoRiesgosa(pnr: NotRiskyPerson): Person = {
+    def makeAPersonRisky(pnr: NotRiskyPerson): Person = {
       RiskyPerson(pnr.name, "LISTA CLINTON")
     }
 
     //TODO: Explicar como se evalua parcialmente calificarPersonaComoRiesgosa con _
-    val f = calificarPersonaComoRiesgosa _
+    val f = makeAPersonRisky _
 
     val liftedFunction = Appl.point(f)
 
