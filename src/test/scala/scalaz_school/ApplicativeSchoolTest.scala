@@ -134,38 +134,42 @@ class ApplicativeSchoolTest extends FunSuite{
 
   test("Applicative functor con un GADT mas cercano a la vida real"){
 
-    sealed trait Persona{
-      def nombre: String
+    sealed trait Person{
+      def name: String
     }
-    case class PersonaRiesgosa(nombre:String, tipoRiesgo:String) extends Persona
-    case class PersonaNoRiesgosa(nombre:String) extends Persona
+    case class RiskyPerson(name:String, riskType:String) extends Person
+    case class NotRiskyPerson(name:String) extends Person
 
 
     //TODO: Explicar por qué no puede haber bounds sobre A
     //Explicación en http://stackoverflow.com/questions/27800502/error-higher-kinded-types-scala-type-arguments-do-not-conform-type-ts-bounds
-    case class PersonaRiesgos[A](val p: A)
+    //TODO: validar la opcion del niño que dice que puede haber un type constructor superior
+    // parametrizado con tipo lower bound Applicative[PersonaRiesgos]
+    case class RiskPerson[A](val p: A)
 
-    implicit val myGADTApplicative = new Applicative[PersonaRiesgos]{
+    implicit val RiskPersonApplicative = new Applicative[RiskPerson]{
 
       //TODO: Dado que no se pueden establecer bounds sobre la parametrizacion del GADT examinar
       //si tiene sentido hacer una smart construction del Applicative en point.
 
-      def point[A](a: => A): PersonaRiesgos[A] = PersonaRiesgos(a)
+      def point[A](a: => A): RiskPerson[A] = RiskPerson(a)
 
       //TODO: Examinar como puede establecerse condiciones de negocio a la aplicacion de la A => B
-      def ap[A,B](fa: => PersonaRiesgos[A])(f: => PersonaRiesgos[A => B]): PersonaRiesgos[B] = {
-        PersonaRiesgos(f.p(fa.p))
+      def ap[A,B](fa: => RiskPerson[A])(f: => RiskPerson[A => B]): RiskPerson[B] = {
+        RiskPerson(f.p(fa.p))
       }
     }
 
-    val Appl = Applicative[PersonaRiesgos]
+    //case class SuperTipo[A<:Persona](a:Applicative[PersonaRiesgos[A]])()
 
-    val pnr = PersonaNoRiesgosa("Juan Pablo")
+    val Appl = Applicative[RiskPerson]
+
+    val pnr = NotRiskyPerson("Juan Pablo")
 
     val liftedPNR = Appl.point(pnr)
 
-    def calificarPersonaComoRiesgosa(pnr: PersonaNoRiesgosa): Persona = {
-      PersonaRiesgosa(pnr.nombre, "LISTA CLINTON")
+    def calificarPersonaComoRiesgosa(pnr: NotRiskyPerson): Person = {
+      RiskyPerson(pnr.name, "LISTA CLINTON")
     }
 
     //TODO: Explicar como se evalua parcialmente calificarPersonaComoRiesgosa con _
@@ -178,11 +182,11 @@ class ApplicativeSchoolTest extends FunSuite{
 
     res.map(x => {
       x match {
-        case PersonaRiesgosa(n,r) => {
+        case RiskyPerson(n,r) => {
           println(x)
           assert(true)
         }
-        case PersonaNoRiesgosa(n) => {
+        case NotRiskyPerson(n) => {
           println(x)
           assert(false)
         }
