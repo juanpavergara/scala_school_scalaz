@@ -133,8 +133,8 @@ class ApplicativeSchoolTest extends FunSuite{
 
 //    Aqui esta la magia. Se ejecutan tres computos aplicativos.
 //    Cuando se dice que la estructura de un aplicativo es fija quiere decir que todos los computos se ejecutaran
-//    sin importar los resultados de cada uno. A diferencia de una monada (o un monadic applicative functor) los
-//    applicative (o naperian applicative functor) siempre ejecutan TODOS sus pasos.
+//    sin importar los resultados de cada uno. A diferencia de una monada los
+//    applicative siempre ejecutan TODOS sus pasos.
 //    El uso de scream (operador |@|) toma los resultados de cada computo y los utiliza para ejecutar la funcion currificada.
 //    La funcion currificada en este caso simplemente es la construccion de un MyGADTInts
 //    Es importante ver que |@| se pudo aplicar sobre Option ¿Por qué?
