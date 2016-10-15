@@ -234,8 +234,7 @@ class ApplicativeSchoolTest extends FunSuite{
 
     val result1: Option[List[Int]] = List(1, 2, 3) traverse { x => (x > 0) option (x + 1) }
     val result2: Option[List[Int]] = List(1, 2, 3) traverse { x => (x > 4) option (x + 1) }
-    println(s"result1: $result1")
-    println(s"result2: $result2")
+
     assert(result1 == Some(List(2,3,4)))
     assert(result2 == None)
 
@@ -243,13 +242,31 @@ class ApplicativeSchoolTest extends FunSuite{
 
   test("Future tiene capacidades de traverse applicative desde la std lib :) "){
 
-    val l = List(Future(1))
+//    traverse sirve para "voltear" dos contextos de la siguiente manera
+//    de F[G[A]] hacia G[F[A]]
+//    en el siguiente ejemplo F es List y G es Future
+//    así que si tenemos una List[Future] podemos usar traverse
+//    para hacer el tortugazo y terminar con Future[List] !
 
-    val result1 = Future.traverse(l){x => x.map(_+1)}
+    val l = List(Future(1), Future(2))
 
-    val unwrappedRes = Await.result(result1, 10 seconds)
+    val result1 = Future.traverse(l){x => x.map( y => y + 1)}
 
-    assert(unwrappedRes == List(2))
+    val unwrappedRes1 = Await.result(result1, 10 seconds)
+
+    assert(unwrappedRes1 == List(2,3))
+
+//    Future tambien ofrece sequence que es lo mismo que traverse con
+//    funcion identidad. A continuacion se hace traverse con id
+//    y se verifica que el resultado sea igual a hacer sequence.
+    val result2 = Future.traverse(l){x => x.map( y => y )}
+    val result3 = Future.sequence(l)
+
+    val unwrappedRes2 = Await.result(result2, 10 seconds)
+    val unwrappedRes3 = Await.result(result3, 10 seconds)
+
+    assert(unwrappedRes2 == List(1,2))
+    assert(unwrappedRes2 == unwrappedRes3)
 
   }
 }
