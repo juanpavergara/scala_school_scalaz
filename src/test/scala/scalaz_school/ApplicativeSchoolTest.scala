@@ -1,8 +1,12 @@
 package scalaz_school
 
 import org.scalatest.FunSuite
+import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
+import scala.concurrent.duration._
 import scalaz._, Scalaz._
-import scalaz.syntax.ApplicativeBuilder
+import scalaz.std._
 
 class ApplicativeSchoolTest extends FunSuite{
 
@@ -171,38 +175,81 @@ class ApplicativeSchoolTest extends FunSuite{
 
   }
 
+  test("Conversiones implicitas a Applicative de otros F[_] (Future)"){
+    def f1(i:Int) = Future{i}
+    def f2(i:Int) = Future.failed(new Exception("Boom"))
+
+    case class MyGADT(a:Int, b:Int, c:Int)
+
+//    Para hacer uso de Future como Applicative tenemos que importar scalaz.std._
+//    en casts el import seria cats.std._ :)
+    val result1 = (f1(1) |@| f1(2) |@| f1(3))(MyGADT.apply)
+    val result2 = (f1(1) |@| f2(2) |@| f1(3))(MyGADT.apply).recover{
+      case e:Exception => "BOOM!"
+    }
+
+
+    val rf1 = Await.result(result1, 10 seconds)
+    val rf2 = Await.result(result2, 10 seconds)
+
+//    En este caso esta pendiente implementar la verificacion que muestre como los tres Future
+//    f1(1) f1(2) f1(3) se ejecutaron paralelamente. Se puede pensar en una verificacion
+//    con el tiempo de ejecucion de la construccion del nuevo Applicative
+    assert(rf1 == MyGADT(1,2,3))
+
+//    Asi como con un Option, en caso de Future la contruccion del Applicative nuevo se queda con el caso de falla
+//    y aun asi se ejecutan todos los computos, incluido el de f1(3) que sucede "despues" del fallo de f2(2)
+    assert(rf2 == "BOOM!")
+
+  }
 
   test("Un Applicative debe permitir la aplicacion de funciones de aridad n > 1") {
     assert(true)
   }
 
-  test("Un Applicative debe permitir traverse"){
-
-    def f1(i:Int) = "1"
-    def f2(i:Int) = "2"
-    def f3(i:Int) = "3"
+  test("Traversable Option debe poderse traverse dado un Applicative (en este caso de Option tbn)"){
 
     def o1(i:Int) = {
-      println(s"Ejecutado o1 con $i")
       Option(i)
     }
 
-    def o2(i:Int) = {
-      println(s"Ejecutado o2 con $i")
-      None
-    }
+//  siendo TraverseOps lo siguiente
+//  final class TraverseOps[F[_],A]
+//  la firma de traverse es la siguiente:
+//  final def traverse[G[_], B](f: A => G[B])(implicit G: Applicative[G]): G[F[B]]
 
-    case class MyGADT(a:String, b:String)
-
-    val result: Option[List[Int]] = List(1, 2, 3) traverse { x => (x > 0) option (x + 1) }
-
-    //TODO: Documentar que traverase siempre debe evaluar a G[] donde G es el type constructor que envuelve el Appl
-    val result2 = Option(1) traverse { x => (x > 0) option (x + 1) }
-
-    println(result)
-    println(result2)
+    val result = o1(1) traverse { x => (x > 0) option (x + 1) }
+    println(s"result: $result")
 
     assert(true)
+
+  }
+
+
+  test("Traversable de List debe poderse traverse dado un Applicative (en este caso de Option)"){
+
+//    traverse is equivalent to map then sequence,
+//    so you can use it when you have a function that returns an Applicative
+//    and you want to just get a single instance of your Applicative rather than a list of them:
+
+    val result1: Option[List[Int]] = List(1, 2, 3) traverse { x => (x > 0) option (x + 1) }
+    val result2: Option[List[Int]] = List(1, 2, 3) traverse { x => (x > 4) option (x + 1) }
+    println(s"result1: $result1")
+    println(s"result2: $result2")
+    assert(result1 == Some(List(2,3,4)))
+    assert(result2 == None)
+
+  }
+
+  test("Future tiene capacidades de traverse applicative desde la std lib :) "){
+
+    val l = List(Future(1))
+
+    val result1 = Future.traverse(l){x => x.map(_+1)}
+
+    val unwrappedRes = Await.result(result1, 10 seconds)
+
+    assert(unwrappedRes == List(2))
 
   }
 }
