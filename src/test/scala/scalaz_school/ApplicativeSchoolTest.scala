@@ -137,7 +137,7 @@ class ApplicativeSchoolTest extends FunSuite{
 //    applicative siempre ejecutan TODOS sus pasos.
 //    El uso de scream (operador |@|) toma los resultados de cada computo y los utiliza para ejecutar la funcion currificada.
 //    La funcion currificada en este caso simplemente es la construccion de un MyGADTInts
-//    Es importante ver que |@| se pudo aplicar sobre Option ¿Por qué?
+//    Es importante ver que |@| se pudo aplicar sobre Option **¿Por qué?**
 //    Porque scalaz (cats tbn lo hace) ofrece conversiones implícitcas de Option a Applicative.
 //    Sería interesante revisar si esto es posible también con cualquier otro F[]
     val resApplicative = ( o1(1) |@|
