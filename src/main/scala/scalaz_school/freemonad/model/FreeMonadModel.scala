@@ -21,6 +21,7 @@ object FreeMonadModel {
 
 
   // Representacion de una solicitud de datos
+  // TODO: terminar de entender por qué es neceario este Request y no es suficiente solo con Service[A]
   final case class Request[A](service: Service[A])
 
   case class Response[A](res: A)
