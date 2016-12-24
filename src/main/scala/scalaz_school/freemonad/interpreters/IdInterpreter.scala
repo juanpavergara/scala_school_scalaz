@@ -55,6 +55,7 @@ object IdInterpreter extends (Request ~> Id.Id) {
 
         case GetTweets(userId) =>
           println(s"Getting tweets for user $userId")
+          //TODO: Entender cómo se genera un Id[List[Tweet]] a partir de la List[Tweet]
           List(Tweet(1, "Hi"), Tweet(2, "Hi"), Tweet(1, "Bye"))
 
         case GetUserName(userId) =>

@@ -1,10 +1,12 @@
 package scalaz_school.freemonad.program
 
+import scala.concurrent.Future
+//este import es necesario para encontrar el implicit Monad[Future]
+import scala.concurrent.ExecutionContext.Implicits.global
 import scalaz._
 import Scalaz._
-import scalaz_school.freemonad.interpreters.IdInterpreter
+import scalaz_school.freemonad.interpreters._
 import scalaz_school.freemonad.model.FreeMonadModel._
-
 
 object FreeMonadProgram {
 
@@ -23,6 +25,8 @@ object FreeMonadProgram {
   Este programa solo es una declaracion. No se ejecuta en este momento. Solo se ejecuta cuando
   se entregue un interprete concreto.
 
+  A esto le llaman "Program as values"
+
    */
   def getUser(id: UserId): Free[Request, User] =
     for {
@@ -40,15 +44,33 @@ object FreeMonadProgram {
       }).sequenceU
     } yield result
 
-  /*
-  Este programa en particualr se ejecutara cuando se llame este metodo.
-  En este momento este metodo siempre eecuta con IdInterprete
 
+  /*
   TODO: implementar un runWith(Request ~> Monad) para que el interprete pueda
   ser inyectado
+  */
+
+  /*
+  runWithId ejecuta el programa free con IdMonad
    */
   def runWithId: List[(String, User)] =
     free.foldMap(IdInterpreter)
+
+  /*
+  runWithFuture ejecuta el programa free con Future
+   */
+  def runWithFuture: Future[List[(String, User)]] = {
+    free.foldMap(FutureInterpreter)
+  }
+
+  /*
+  runWithOption ejecuta el programa free con Option
+   */
+  def runWithOption: Option[List[(String, User)]] = {
+    free.foldMap(OptionMockInterpreter)
+  }
+
+
 
 }
 
