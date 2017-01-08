@@ -1,9 +1,11 @@
 package scalaz_school
 
 import org.scalatest.FunSuite
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scalaz._, Scalaz._
 import Kleisli._
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 /**
  * Created by juanpavergara on 10/17/16.
@@ -58,28 +60,44 @@ class KleisliSchool extends FunSuite{
 
 
 
-//  test("Probando lo de Yuji"){
-//
-//    type Event = String
-//    type UserWithLogin = String
-//    type ErrorYuji = String
-//
-//    trait Command[A] {
-//      type Response[B] = EitherT[Future, ErrorYuji, B]
-//      def execute: Kleisli[Response, A, List[Event]]
-//    }
-//
-//    case class CreateUser()(implicit ec: ExecutionContext) extends Command[UserWithLogin] {
-//
-//      override def execute: Kleisli[Response, UserWithLogin, List[Event]] = Kleisli { ul =>
-//        import scala.concurrent.ExecutionContext.Implicits.global
-//        EitherT.right{
-//          Future{
-//            List("OK")
-//          }
-//        }
-//      }
-//    }
-//  }
+  test("Probando lo de Yuji"){
+
+    type Event = String
+    type UserWithLogin = String
+    type Error = String
+
+    trait Command[A] {
+      type Response[B] = EitherT[Future, Error, B]
+      def execute()(implicit ec: ExecutionContext): Kleisli[Response, A, List[Event]]
+    }
+
+    case class CreateUser() extends Command[String] {
+
+      override def execute()(implicit ec: ExecutionContext) = kleisli[Response, UserWithLogin, List[Event]]{ ul: UserWithLogin =>
+        //import scala.concurrent.ExecutionContext.Implicits.global
+        val a : Future[Error \/ List[Event]] = Future(\/-(List("evento1")))
+        EitherT(a)
+      }
+    }
+
+    val cu = CreateUser()
+
+    import scala.concurrent.ExecutionContext.Implicits.global
+    // Cuando ejecuto tengo una Kleisli
+    val r1 = cu.execute()
+    // Un kleisli se tiene que *run* inyectando la dependencia
+    // Y lo que se obtiene al ejecutar la Kleisli es un EitherT[Future] tal como lo dice la
+    // definicion de execute. No hay forma de tener lo de dentro del future porque la
+    // Kleisli evalua a EitherT[Future].
+    val executed: cu.Response[List[Event]] = r1.run("VergaraUserLogin")
+
+    // Al EitherT[Future] le puedo "sacar" el Future con .run
+    val future: Future[Disjunction[Error, List[Event]]] = executed.run
+
+    val res = Await.result(future, 5 seconds)
+
+    assert(res == \/-(List("evento1")))
+
+  }
 
 }
