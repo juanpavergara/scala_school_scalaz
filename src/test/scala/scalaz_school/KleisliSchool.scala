@@ -60,7 +60,7 @@ class KleisliSchool extends FunSuite{
 
 
 
-  test("Probando lo de Yuji"){
+  test("Kleisli con EitherT[Future]"){
 
     type Event = String
     type UserWithLogin = String
