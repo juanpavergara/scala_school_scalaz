@@ -1,7 +1,7 @@
 package scalaz_school
 
 import org.scalatest.FunSuite
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.concurrent.duration._
 
 import scalaz_school.freemonad.program.FreeMonadProgram
