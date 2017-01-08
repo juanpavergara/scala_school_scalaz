@@ -1,6 +1,9 @@
 package scalaz_school
 
 import org.scalatest.FunSuite
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+import scala.language.postfixOps
 import scalaz._, Scalaz._
 
 /**
@@ -51,29 +54,41 @@ class EitherTSchool extends FunSuite {
 
   }
 
-//  test("Se debe poder componer Either (Disjunction) con Future") {
-//    import scala.concurrent.ExecutionContext.Implicits.global
-//
-//    def foo(i:Int): DisjunctionT[Future[], Nothing, Nothing] = i%2 match {
-//      case 0 => EitherT {
-//          Future {
-//            \/-(List("OK"))
-//          }
-//        }
-//      case 1 =>
-//          EitherT{
-//            Future{
-//              -\/("BOOOM!")
-//            }
-//          }
-//    }
-//
-//    val res = for {
-//      x <- foo(2)
-//      y <- foo(1)
-//    } yield y
-//
-//    println(s"res: ${res}")
-//
-//  }
+  test("Se debe poder componer Either (Disjunction) con Future") {
+
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    val x : Future[String \/ Int] = Future(\/-(6))
+    val y : Future[String \/ Int] = Future(-\/("BOOM!"))
+    val z : Future[String \/ Int] = Future.failed(new Exception("BOOM!"))
+
+    val etx = EitherT(x)
+    val ety = EitherT(y)
+    val etz = EitherT(z)
+
+    val r1 = for {
+      x <- etx
+      y <- ety
+    } yield x
+
+    // Saca el futuro del EitherT con r.run (ok) y saca el valor del Future con Await (no ok)
+    val res1 = Await.result(r1.run, 5 seconds)
+
+    // Note como el resultado es de la izquierda en la Disjunction, pues este valor rompe la estructura
+    // en ese efecto monádico. Solo por estar presente ety que viene de y que es un -\/ ya todo el computo evalua
+    // a izquierda
+    assert(res1 == -\/("BOOM!"))
+
+    // En este caso se verifica que todo
+    // el programa se ejecuta cuando las dos funciones evaluan a futuro exitoso de derecha
+    val r2 = for {
+      x <- etx
+      y <- etx
+    } yield x
+
+    val res2 = Await.result(r2.run, 5 seconds)
+
+    assert(res2 == \/-(6))
+
+  }
 }
