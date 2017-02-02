@@ -68,8 +68,22 @@ class DisjunctionSchoolTest extends FlatSpec{
 
     println(c)
 
+  }
 
+  it should "sequenceU de list disjunction todos right" in {
+    def foo(): \/[Exception, String] = \/-("Hola")
+    val l= List(foo, foo)
+    val r = l.sequenceU
+    println(s"Hola niño 0 ${r}")
+  }
 
+  it should "sequenceU de list disjunction un right y un left" in {
+    def foo(): \/[Exception, String] = \/-("Hola")
+    def bar(): \/[Exception, String] = -\/(new Exception("Boom"))
+    val l= List(foo, bar)
+    val r = l.sequenceU
+
+    println(s"Hola niño 1 ${r}")
   }
 
 }

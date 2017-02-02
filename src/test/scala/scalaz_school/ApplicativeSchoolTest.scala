@@ -240,28 +240,15 @@ class ApplicativeSchoolTest extends FunSuite{
 
   }
 
-  test("sequenceU de list disjunction todos right"){
-    def foo(): \/[Exception, String] = \/-("Hola")
-    val l= List(foo, foo)
-    val r = l.sequenceU
-    println(s"Hola niño 0 ${r}")
-  }
 
-  test("sequenceU de list disjunction un right y un left"){
-    def foo(): \/[Exception, String] = \/-("Hola")
-    def bar(): \/[Exception, String] = -\/(new Exception("Boom"))
-    val l= List(foo, bar)
-    val r = l.sequenceU
-
-    println(s"Hola niño 1 ${r}")
-  }
 
   test("sequenceU de list option"){
     def foo(): Option[Int] = Some(1)
     val l= List(foo, foo)
     val r = l.sequenceU
 
-    println(s"Hola niño 2 ${r}")
+    assert(r == Some(List(1, 1)))
+
   }
 
   test("Traverse de list option"){
@@ -269,7 +256,8 @@ class ApplicativeSchoolTest extends FunSuite{
     val l= List(foo, foo)
     val r = l.traverse(x => x.map(y=>y+1))
 
-    println(s"Hola niño 3 ${r}")
+    assert(r==Some(List(2, 2)))
+
   }
 
   test("Future tiene capacidades de traverse applicative desde la std lib :) "){
