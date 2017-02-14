@@ -6,10 +6,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 import scalaz._, Scalaz._
 
-/**
- * Created by juanpavergara on 1/7/17.
- */
-class EitherTSchool extends FunSuite {
+class EitherTSchoolTest extends FunSuite {
 
   test("Se debe poder componer Either con Option"){
 
@@ -75,7 +72,7 @@ class EitherTSchool extends FunSuite {
     val res1 = Await.result(r1.run, 5 seconds)
 
     // Note como el resultado es de la izquierda en la Disjunction, pues este valor rompe la estructura
-    // en ese efecto monádico. Solo por estar presente ety que viene de y que es un -\/ ya todo el computo evalua
+    // en ese efecto monádico. Solo por estar presente ety que viene de y que es un -\/ ya el computo completo evalua
     // a izquierda
     assert(res1 == -\/("BOOM!"))
 
